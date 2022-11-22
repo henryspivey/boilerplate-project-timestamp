@@ -3,6 +3,7 @@
 
 // init project
 var express = require('express');
+const bodyParser = require('body-parser')
 var app = express();
 
 // enable CORS (https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
@@ -12,6 +13,7 @@ app.use(cors({optionsSuccessStatus: 200}));  // some legacy browsers choke on 20
 
 // http://expressjs.com/en/starter/static-files.html
 app.use(express.static('public'));
+app.use(bodyParser.urlencoded({extended:false}))
 
 // http://expressjs.com/en/starter/basic-routing.html
 app.get("/", function (req, res) {
@@ -24,9 +26,31 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
+app.get("/api/:date", function(req, res) {
+  // get the date
+  const {date} = req.params
+  let unix,utc;
+  
+  // now that we have the date, we just need check if it's unix
+  if(date.search('\-') > 0) {
+    // found some dash so we need to convert to utc
+    const rawDate = new Date(date)
+    utc = rawDate.toUTCString()
+    unix = rawDate.getTime()
+  } else {
+    const parsedDate = parseInt(date)
+    console.log(parsedDate)
+    utc = new Date(parsedDate).toUTCString()
+    unix = parsedDate
+  }
+  
+  res.json({'unix':unix, 'utc': utc})
+
+})
+
 
 
 // listen for requests :)
-var listener = app.listen(process.env.PORT, function () {
+var listener = app.listen(3000, function () {
   console.log('Your app is listening on port ' + listener.address().port);
 });
