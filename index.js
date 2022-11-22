@@ -26,12 +26,16 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
-app.get("/api/:date", function(req, res) {
+app.get("/api/:date?", function(req, res) {
   // get the date
   const {date} = req.params
   let unix,utc;
-  
-  // now that we have the date, we just need check if it's unix
+  if(!date) {
+    const now = new Date()
+    unix = now.getTime()
+    utc = now.toUTCString()
+  } else {
+    // now that we have the date, we just need check if it's unix
   if(date.search('\-') > 0) {
     // found some dash so we need to convert to utc
     const rawDate = new Date(date)
@@ -43,6 +47,10 @@ app.get("/api/:date", function(req, res) {
     utc = new Date(parsedDate).toUTCString()
     unix = parsedDate
   }
+  }
+  
+  
+  
   
   res.json({'unix':unix, 'utc': utc})
 
