@@ -31,8 +31,7 @@ app.get("/api/:date?", function(req, res) {
   const {date} = req.params
   const test_date = new Date(date)
   if(test_date == 'Invalid Date') {
-    res.json({ error : "Invalid Date" })
-    return
+    res.json({ error : "Invalid Date" })    
   }
   let unix,utc;
   if(!date) {
@@ -53,9 +52,6 @@ app.get("/api/:date?", function(req, res) {
     unix = parsedDate
   }
   }
-  
-  
-  
   
   res.json({'unix':unix, 'utc': utc})
 
