@@ -29,6 +29,11 @@ app.get("/api/hello", function (req, res) {
 app.get("/api/:date?", function(req, res) {
   // get the date
   const {date} = req.params
+  const test_date = new Date(date)
+  if(test_date == 'Invalid Date') {
+    res.json({ error : "Invalid Date" })
+    return
+  }
   let unix,utc;
   if(!date) {
     const now = new Date()
