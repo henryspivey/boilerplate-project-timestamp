@@ -26,35 +26,42 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
-app.get("/api/:date?", function(req, res) {
+app.get("/api/:date_string?", function(req, res, next) {
   // get the date
-  const {date} = req.params
-  const test_date = new Date(date)
-  if(test_date == 'Invalid Date') {
-    res.json({ error : "Invalid Date" })    
-  }
+  const {date_string} = req.params
+  console.log(date_string)
   let unix,utc;
-  if(!date) {
+  let message;
+  let invalidDateFound = false;
+  const rawDate = new Date(date_string)
+  if(rawDate.toString() === 'Invalid Date') {
+    message = {
+      'error': 'Invalid Date'
+    }
+    if(!parseInt(date_string) >0) invalidDateFound = true
+  }
+  if(!date_string) {
     const now = new Date()
     unix = now.getTime()
     utc = now.toUTCString()
-  } else {
-    // now that we have the date, we just need check if it's unix
-  if(date.search('\-') > 0) {
-    // found some dash so we need to convert to utc
-    const rawDate = new Date(date)
-    utc = rawDate.toUTCString()
-    unix = rawDate.getTime()
-  } else {
-    const parsedDate = parseInt(date)
-    console.log(parsedDate)
-    utc = new Date(parsedDate).toUTCString()
-    unix = parsedDate
+    message={'unix':unix, 'utc': utc}
+  } else if(!invalidDateFound) {
+    // now that we have the date_string, we just need check if it's unix
+    if(date_string.search('\-') > 0) {
+      // found some dash so we need to convert to utc
+      utc = rawDate.toUTCString()
+      unix = rawDate.getTime()
+      message = {'unix':unix, 'utc': utc}
+    } else {
+      const parsedDate = parseInt(date_string)      
+      utc = new Date(parsedDate).toUTCString()
+      unix = parsedDate
+      const rawDate = new Date(unix)
+      message = {'unix':unix, 'utc': utc}
+    } 
   }
-  }
-  
-  res.json({'unix':unix, 'utc': utc})
-
+  res.json(message)
+  next()
 })
 
 
